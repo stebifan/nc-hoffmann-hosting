@@ -9,6 +9,6 @@ RUN apt-get update && apt-get install -y \
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 
 COPY hoffmann /var/www/html/themes/hoffmann
-CMD ["sudo -u www-data php /var/www/html/occ config:system:set theme --value="h""]
+CMD ["sudo -u www-data php /var/www/html/occ config:system:set theme --value="hoffmann""]
 
 CMD ["/usr/bin/supervisord"]
