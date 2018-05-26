@@ -11,6 +11,7 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY hoffmann /var/www/html/themes/hoffmann
 COPY config.sh /
 RUN chmod +x /config.sh
+RUN ["/config.sh"]
 CMD ["/usr/bin/supervisord"]
 <<<<<<< HEAD
 CMD ["sudo -u www-data php /var/www/html/occ config:system:set theme --value="hoffmann""]
