@@ -11,5 +11,6 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY hoffmann /var/www/html/themes/hoffmann
 COPY config.sh /
 RUN chmod +x /config.sh
-ENTRYPOINT ["/config.sh"]
+
 CMD ["/usr/bin/supervisord"]
+ENTRYPOINT ["/config.sh"]
