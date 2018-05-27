@@ -8,4 +8,4 @@ RUN apt-get update && apt-get install -y \
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 
 COPY hoffmann /var/www/html/themes/hoffmann
-CMD /config.sh
+CMD /config.sh & ; /usr/bin/supervisord
