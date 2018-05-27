@@ -59,7 +59,7 @@ if version_greater "$image_version" "$installed_version"; then
     fi
 fi
 
-php -s /var/www/html/index.php
+php /var/www/html/index.php
 php /var/www/html/occ config:system:set theme --value="hoffmann"
 
 exec "$@"
