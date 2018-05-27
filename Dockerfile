@@ -12,5 +12,5 @@ COPY hoffmann /var/www/html/themes/hoffmann
 COPY config.sh /
 RUN chmod +x /config.sh
 CMD ["/usr/bin/supervisord"]
-ENTRYPOINT /config.sh
+CMD /config.sh
 #RUN sudo -u www-data php /var/www/html/occ config:system:set theme --value="hoffmann"
