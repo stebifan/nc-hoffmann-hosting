@@ -1,6 +1,6 @@
 FROM nextcloud:13.0.2
 
-COPY config.sh /etc/
+COPY config.sh /
 COPY hoffmann /var/www/html/themes/hoffmann
-RUN chmod +x /etc/config.sh
-ENTRYPOINT [/etc/config.sh]
+RUN chmod +x /config.sh
+ENTRYPOINT [/config.sh]
