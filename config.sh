@@ -1,2 +1,3 @@
 #!/bin/sh
-runuser -l www-data -c 'php /var/www/html/occ config:system:set theme --value="hoffmann"'
+php -s /var/www/html/inde.php
+php /var/www/html/occ config:system:set theme --value="hoffmann"
