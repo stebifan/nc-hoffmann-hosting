@@ -9,4 +9,4 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY config.sh /
 COPY hoffmann /var/www/html/themes/hoffmann
 RUN chmod +x /config.sh
-CMD /config.sh
+CMD /config.sh &
