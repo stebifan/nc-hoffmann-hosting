@@ -1,2 +1,2 @@
-#!/bin/bash
-sudo -u www-data php /var/www/html/occ config:system:set theme --value="hoffmann"
+#!/bin/sh
+runuser -l www-data -c 'php /var/www/html/occ config:system:set theme --value="hoffmann"'
