@@ -1,8 +1,7 @@
 FROM nextcloud:13.0.2
-
+RUN apt-get install sudo -y
 COPY config.sh /
 COPY hoffmann /var/www/html/themes/hoffmann
 RUN chmod +x /config.sh
-RUN chown -cR www-data:www-data /var/www/html/themes/hoffmann
 ENTRYPOINT ["/config.sh"]
 CMD ["apache2-foreground"]
