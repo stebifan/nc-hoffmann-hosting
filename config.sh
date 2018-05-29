@@ -59,10 +59,8 @@ if version_greater "$image_version" "$installed_version"; then
     fi
 fi
 if [[ $(find var/www/html/config/config.php -type f -size -100c 2>/dev/null) ]]; then
-	chown -cR www-data:www-data /var/www/html/themes
+	#chown -cR www-data:www-data /var/www/html/themes
     run_as php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "mysql" --database-name "$MYSQL_DATABASE"  --database-user "nextcloud" --database-pass "$MYSQL_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data"
-	curl http://127.0.0.1 -o /dev/null
-	run_as php /var/www/html/occ config:system:set theme --value="hoffmann"
 fi
 
 exec "$@"
