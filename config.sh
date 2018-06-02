@@ -3,7 +3,7 @@ set -eu
 
 # version_greater A B returns whether A > B
 version_greater() {
-	[ "$(printf '%s\n' "$@" | sort -t '.' -n -k1,1 -k2,2 -k3,3 -k4,4 | head -n 1)" != "$1" ]
+    [ "$(printf '%s\n' "$@" | sort -t '.' -n -k1,1 -k2,2 -k3,3 -k4,4 | head -n 1)" != "$1" ]
 }
 
 # return true if specified directory is empty
@@ -58,10 +58,11 @@ if version_greater "$image_version" "$installed_version"; then
         rm -f /tmp/list_before /tmp/list_after
     fi
 fi
-#if [[ $(find var/www/html/config/config.php -type f -size -100c 2>/dev/null) ]]; then
+
+if [[ $(find var/www/html/config/config.php -type f -size -100c 2>/dev/null) ]]; then
 	#chown -cR www-data:www-data /var/www/html/themes
     su - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "pgsql" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_POSTGRES_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
-#fi
+fi
 
 exec "$@"
 
