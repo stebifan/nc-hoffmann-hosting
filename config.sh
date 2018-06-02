@@ -61,7 +61,7 @@ fi
 
 if [[ $(find var/www/html/config/config.php -type f -size -100c 2>/dev/null) ]]; then
 	#chown -cR www-data:www-data /var/www/html/themes
-    su - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "pgsql" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_POSTGRES_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
+    #su - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "pgsql" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_POSTGRES_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
 fi
 
 exec "$@"
