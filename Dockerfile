@@ -1,4 +1,6 @@
 FROM nextcloud:13.0.2-fpm
+RUN apt-get update && \
+apt-get install htop -y
 
 COPY config.sh /
 COPY hoffmann /var/www/html/themes/hoffmann
