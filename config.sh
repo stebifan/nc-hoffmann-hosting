@@ -64,16 +64,16 @@ grep -iq installed /var/www/html/config/config.php && exec "$@" && exit 0
 chown -cR www-data:root /var/www/html/themes
 
 # Install Nextcloud on first run
-su - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "$DB_DRIVER" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_DB_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
-su - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set trusted_domains 2 --value="$DOMAIN""
+su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "$DB_DRIVER" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_DB_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
+su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set trusted_domains 2 --value="$DOMAIN""
 # If Theme Variable is set, use the Theme
 if [ -v THEME ]; then
-su - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --value="$THEME""
+su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --value="$THEME""
 fi
 
 # If SINGLE_USER variable is set, setup user and quota
 if [ "${SINGLE_USER}" = "true" ]; then
-su - www-data -s /bin/sh -c "export OC_PASS="$OC_PASS_SET" && php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" $SINGLE_USER_NAME"
-su - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_FULL_NAME files quota "$SINGLE_USER_QUOTA""
+su -m - www-data -s /bin/sh -c "export OC_PASS="$OC_PASS_SET" && php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" $SINGLE_USER_NAME"
+su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_FULL_NAME files quota "$SINGLE_USER_QUOTA""
 fi
 exec "$@"
