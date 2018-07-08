@@ -73,7 +73,7 @@ fi
 
 # If SINGLE_USER variable is set, setup user and quota
 if [ "${SINGLE_USER}" = "true" ]; then
-su - www-data -s /bin/sh -c "php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" $SINGLE_USER_NAME"
+su - www-data -s /bin/sh -c "export OC_PASS="$OC_PASS_SET" && php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" $SINGLE_USER_NAME"
 su - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_FULL_NAME files quota "$SINGLE_USER_QUOTA""
 fi
 exec "$@"
