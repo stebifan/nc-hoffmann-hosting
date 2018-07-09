@@ -84,6 +84,6 @@ echo "Encryption Enabled"
 if [ "$SINGLE_USER" = true ]; then
 su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
-echo "User $SINGLE_USER_NAME" is activated with Quota of $SINGLE_USER_QUOTA"
+echo "User $SINGLE_USER_NAME is activated with Quota of $SINGLE_USER_QUOTA"
 fi
 exec "$@"
