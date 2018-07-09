@@ -66,14 +66,24 @@ chown -cR www-data:root /var/www/html/themes
 # Install Nextcloud on first run
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "$DB_DRIVER" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_DB_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set trusted_domains 2 --value="$DOMAIN""
+echo "Nextcloud is installed"
+
+
 # If Theme Variable is set, use the Theme
 if [ -v THEME ]; then
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --value="$THEME""
+echo "Theme $THEME is Activated"
 fi
+#Enable Encryption
+su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
+su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
+su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status"
+echo "Encryption Enabled"
 
 # If SINGLE_USER variable is set, setup user and quota
 if [ "$SINGLE_USER" = true ]; then
 su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
+echo "User $SINGLE_USER_NAME" is activated with Quota of $SINGLE_USER_QUOTA"
 fi
 exec "$@"
