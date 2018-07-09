@@ -72,6 +72,8 @@ su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --
 fi
 
 # If SINGLE_USER variable is set, setup user and quota
+if [ "$SINGLE_USER" = true ]; then
 su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_FULL_NAME files quota "$SINGLE_USER_QUOTA""
+fi
 exec "$@"
