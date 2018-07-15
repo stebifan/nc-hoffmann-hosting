@@ -105,7 +105,6 @@ if [ "$SINGLE_USER" = true ]; then
     if [ $user_is != $user_should ]; then
         su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
     fi
-    #Check Quota
     quota_is=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota")
     if [ $quota_is != $SINGLE_USER_QUOTA ]; then
         su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
