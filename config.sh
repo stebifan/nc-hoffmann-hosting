@@ -58,32 +58,58 @@ if version_greater "$image_version" "$installed_version"; then
         rm -f /tmp/list_before /tmp/list_after
     fi
 fi
-# Check if Nextcloud is already installed
-grep -iq installed /var/www/html/config/config.php && exec "$@" && exit 0
+# Check if Nextcloud is already installed (Old Check)
+#grep -iq installed /var/www/html/config/config.php && exec "$@" && exit 0
+
 # Repair permissions on Themes Folder
 chown -cR www-data:root /var/www/html/themes
+check_install=$(grep -Fxqv installed /var/www/html/config/config.php)
 
-# Install Nextcloud on first run
+# Install Nextcloud if not installed
+if [ $check_install ]; then
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "$DB_DRIVER" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_DB_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set trusted_domains 2 --value="$DOMAIN""
 echo "Nextcloud is installed"
-
+fi
 
 # If Theme Variable is set, use the Theme
 if [ -v THEME ]; then
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --value="$THEME""
 echo "Theme $THEME is Activated"
 fi
+
 #Enable Encryption
-su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
-su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
-su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status"
-echo "Encryption Enabled"
+check_encryption_on=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: true")
+check_encryption_off=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: false")
+if [ "$ENCRYPTION" = true ]; then
+    if [ $check_encryption_off ]; then
+        su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
+        su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
+        su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status"
+        echo "Encryption Enabled"
+    fi
+else
+    if [ $check_encryption_on ]; then
+        su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
+        su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
+        su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status"
+        echo "Encryption Disabled"
+    fi
+fi
 
 # If SINGLE_USER variable is set, setup user and quota
+
 if [ "$SINGLE_USER" = true ]; then
-su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
-su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
+    user_is=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:list | grep -q "$SINGLE_USER_NAME"")
+    user_should="  - $SINGLE_USER_NAME: $SINGLE_USER_FULL_NAME"
+    if [ $user_is != $user_should ]; then
+        su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
+    fi
+    #Check Quota
+    quota_is=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota")
+    if [ $quota_is != $SINGLE_USER_QUOTA ]; then
+        su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
+    fi
 echo "User $SINGLE_USER_NAME is activated with Quota of $SINGLE_USER_QUOTA"
 fi
 exec "$@"
