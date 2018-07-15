@@ -100,7 +100,7 @@ fi
 # If SINGLE_USER variable is set, setup user and quota
 
 if [ "$SINGLE_USER" = true ]; then
-    user_is=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:list | grep -q "$SINGLE_USER_NAME"")
+    user_is=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:list" | grep -q "$SINGLE_USER_NAME")
     user_should="  - $SINGLE_USER_NAME: $SINGLE_USER_FULL_NAME"
     if [ $user_is != $user_should ]; then
         su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
