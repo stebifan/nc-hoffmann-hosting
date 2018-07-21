@@ -77,19 +77,10 @@ if [ -v THEME ]; then
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --value="$THEME""
 echo "Theme $THEME is Activated"
 fi
-echo theme
 #Enable Encryption
-<<<<<<< HEAD
 #check_encryption_on=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: true")
 #check_encryption_off=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: false")
-=======
-check_encryption_on=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: true")
-check_encryption_off=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: false")3
-echo check-encr
-<<<<<<< HEAD
->>>>>>> 1e68c9084b3b82ca50b679ffabfae2a8d1271d21
-=======
->>>>>>> 1e68c9084b3b82ca50b679ffabfae2a8d1271d21
+
 if [ "$ENCRYPTION" = true ]; then
 	su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --on"
     su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
@@ -97,7 +88,6 @@ if [ "$ENCRYPTION" = true ]; then
     su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --off"
     echo "Encryption Enabled"
 fi
-echo encr-ende
 # If SINGLE_USER variable is set, setup user and quota
 
 if [ "$SINGLE_USER" = true ]; then
