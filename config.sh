@@ -77,34 +77,28 @@ if [ -v THEME ]; then
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --value="$THEME""
 echo "Theme $THEME is Activated"
 fi
-
+echo theme
 #Enable Encryption
+<<<<<<< HEAD
+#check_encryption_on=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: true")
+#check_encryption_off=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: false")
+=======
 check_encryption_on=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: true")
-check_encryption_off=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: false")
+check_encryption_off=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: false")3
+echo check-encr
+>>>>>>> 1e68c9084b3b82ca50b679ffabfae2a8d1271d21
 if [ "$ENCRYPTION" = true ]; then
-    if [ $check_encryption_off ]; then
-        su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
-        su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
-        su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status"
-        echo "Encryption Enabled"
-    fi
-else
-    if [ $check_encryption_on ]; then
-        su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
-        su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
-        su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status"
-        echo "Encryption Disabled"
-    fi
+	su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --on"
+    su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
+    su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
+    su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --off"
+    echo "Encryption Enabled"
 fi
-
+echo encr-ende
 # If SINGLE_USER variable is set, setup user and quota
 
 if [ "$SINGLE_USER" = true ]; then
-    user_is=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:list" | grep -q "$SINGLE_USER_NAME")
-    user_should="  - $SINGLE_USER_NAME: $SINGLE_USER_FULL_NAME"
-    if [ $user_is != $user_should ]; then
-        su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
-    fi
+    su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
     quota_is=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota")
     if [ $quota_is != $SINGLE_USER_QUOTA ]; then
         su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
