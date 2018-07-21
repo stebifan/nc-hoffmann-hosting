@@ -86,6 +86,9 @@ echo theme
 check_encryption_on=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: true")
 check_encryption_off=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: false")3
 echo check-encr
+<<<<<<< HEAD
+>>>>>>> 1e68c9084b3b82ca50b679ffabfae2a8d1271d21
+=======
 >>>>>>> 1e68c9084b3b82ca50b679ffabfae2a8d1271d21
 if [ "$ENCRYPTION" = true ]; then
 	su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --on"
