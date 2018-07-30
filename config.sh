@@ -58,8 +58,8 @@ if version_greater "$image_version" "$installed_version"; then
         rm -f /tmp/list_before /tmp/list_after
     fi
 fi
-# Check if Nextcloud is already installed (Old Check)
-#grep -iq installed /var/www/html/config/config.php && exec "$@" && exit 0
+# Check if Nextcloud is already installed
+grep -iq installed /var/www/html/config/config.php && exec "$@" && exit 0
 
 # Repair permissions on Themes Folder
 chown -cR www-data:root /var/www/html/themes
