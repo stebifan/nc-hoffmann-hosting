@@ -1,4 +1,4 @@
-FROM nextcloud:13.0.7-fpm
+FROM nextcloud:14.0.3-fpm
 RUN apt-get update && \
 apt-get install htop -y
 
