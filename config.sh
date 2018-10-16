@@ -76,7 +76,6 @@ if expr "$1" : "apache" 1>/dev/null || [ "$1" = "php-fpm" ] || [ "${NEXTCLOUD_UP
     			su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
 			echo "User $SINGLE_USER_NAME is activated with Quota of $SINGLE_USER_QUOTA"
 		fi
-	fi
         #upgrade
         else
             run_as 'php /var/www/html/occ upgrade'
@@ -88,5 +87,6 @@ if expr "$1" : "apache" 1>/dev/null || [ "$1" = "php-fpm" ] || [ "${NEXTCLOUD_UP
 
         fi
     fi
+fi
 
 exec "$@"
