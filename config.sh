@@ -129,8 +129,9 @@ if expr "$1" : "apache" 1>/dev/null || [ "$1" = "php-fpm" ] || [ "${NEXTCLOUD_UP
     fi
 fi
 # Check if Nextcloud is already installed
+if [ -f /var/www/html/config/config.php ]; then
 grep -iq installed /var/www/html/config/config.php && exec "$@" && exit 0
-
+fi
 # Repair permissions on Themes Folder
 chown -cR www-data:root /var/www/html/themes
 #check_install=$(grep -Fxqv installed /var/www/html/config/config.php)
