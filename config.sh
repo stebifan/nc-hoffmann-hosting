@@ -56,66 +56,27 @@ if expr "$1" : "apache" 1>/dev/null || [ "$1" = "php-fpm" ] || [ "${NEXTCLOUD_UP
         #install
         if [ "$installed_version" = "0.0.0.0" ]; then
             echo "New nextcloud instance"
+        	# Install Nextcloud if not installed
+		su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "$DB_DRIVER" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_DB_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
+		su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set trusted_domains 2 --value="$DOMAIN""
+		echo "Nextcloud is installed"
 
-            if [ -n "${NEXTCLOUD_ADMIN_USER+x}" ] && [ -n "${NEXTCLOUD_ADMIN_PASSWORD+x}" ]; then
-                # shellcheck disable=SC2016
-                install_options='-n --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD"'
-                if [ -n "${NEXTCLOUD_TABLE_PREFIX+x}" ]; then
-                    # shellcheck disable=SC2016
-                    install_options=$install_options' --database-table-prefix "$NEXTCLOUD_TABLE_PREFIX"'
-                else
-                    install_options=$install_options' --database-table-prefix ""'
-                fi
-                if [ -n "${NEXTCLOUD_DATA_DIR+x}" ]; then
-                    # shellcheck disable=SC2016
-                    install_options=$install_options' --data-dir "$NEXTCLOUD_DATA_DIR"'
-                fi
+		# Enable Encryption
+		if [ "$ENCRYPTION" = true ]; then
+			su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --on"
+    			su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
+    			su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
+    			su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --off"
+    			echo "Encryption Enabled"
+		fi
 
-                install=false
-                if [  -n "${SQLITE_DATABASE+x}" ]; then
-                    echo "Installing with SQLite database"
-                    # shellcheck disable=SC2016
-                    install_options=$install_options' --database-name "$SQLITE_DATABASE"'
-                    install=true
-                elif [ -n "${MYSQL_DATABASE+x}" ] && [ -n "${MYSQL_USER+x}" ] && [ -n "${MYSQL_PASSWORD+x}" ] && [ -n "${MYSQL_HOST+x}" ]; then
-                    echo "Installing with MySQL database"
-                    # shellcheck disable=SC2016
-                    install_options=$install_options' --database mysql --database-name "$MYSQL_DATABASE" --database-user "$MYSQL_USER" --database-pass "$MYSQL_PASSWORD" --database-host "$MYSQL_HOST"'
-                    install=true
-                elif [ -n "${POSTGRES_DB+x}" ] && [ -n "${POSTGRES_USER+x}" ] && [ -n "${POSTGRES_PASSWORD+x}" ] && [ -n "${POSTGRES_HOST+x}" ]; then
-                    echo "Installing with PostgreSQL database"
-                    # shellcheck disable=SC2016
-                    install_options=$install_options' --database pgsql --database-name "$POSTGRES_DB" --database-user "$POSTGRES_USER" --database-pass "$POSTGRES_PASSWORD" --database-host "$POSTGRES_HOST"'
-                    install=true
-                fi
-
-                if [ "$install" = true ]; then
-                    echo "starting nexcloud installation"
-                    max_retries=10
-                    try=0
-                    until run_as "php /var/www/html/occ maintenance:install $install_options" || [ "$try" -gt "$max_retries" ]
-                    do
-                        echo "retrying install..."
-                        try=$((try+1))
-                        sleep 3s
-                    done
-                    if [ "$try" -gt "$max_retries" ]; then
-                        echo "installing of nextcloud failed!"
-                        exit 1
-                    fi
-                    if [ -n "${NEXTCLOUD_TRUSTED_DOMAINS+x}" ]; then
-                        echo "setting trusted domains…"
-                        NC_TRUSTED_DOMAIN_IDX=1
-                        for DOMAIN in $NEXTCLOUD_TRUSTED_DOMAINS ; do
-                            DOMAIN=$(echo "$DOMAIN" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-                            run_as "php /var/www/html/occ config:system:set trusted_domains $NC_TRUSTED_DOMAIN_IDX --value=$DOMAIN"
-                            NC_TRUSTED_DOMAIN_IDX=$(($NC_TRUSTED_DOMAIN_IDX+1))
-                        done
-                    fi
-                else
-                    echo "running web-based installer on first connect!"
-                fi
-            fi
+		# If SINGLE_USER variable is set, setup user and quota
+		if [ "$SINGLE_USER" = true ]; then
+    			su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
+    			su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
+			echo "User $SINGLE_USER_NAME is activated with Quota of $SINGLE_USER_QUOTA"
+		fi
+	fi
         #upgrade
         else
             run_as 'php /var/www/html/occ upgrade'
@@ -127,41 +88,5 @@ if expr "$1" : "apache" 1>/dev/null || [ "$1" = "php-fpm" ] || [ "${NEXTCLOUD_UP
 
         fi
     fi
-fi
-# Check if Nextcloud is already installed
-if [ -f /var/www/html/config/config.php ]; then
-grep -iq installed /var/www/html/config/config.php && exec "$@" && exit 0
-fi
-# Repair permissions on Themes Folder
-chown -cR www-data:root /var/www/html/themes
-#check_install=$(grep -Fxqv installed /var/www/html/config/config.php)
 
-# Install Nextcloud if not installed
-if [ ! -f /var/www/html/config/config.php ]; then
-su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:install -q -n --database-host "db" --database "$DB_DRIVER" --database-name "nextcloud"  --database-user "nextcloud" --database-pass "$NC_DB_PASSWORD" --admin-user "$NEXTCLOUD_ADMIN_USER" --admin-pass "$NEXTCLOUD_ADMIN_PASSWORD" --data-dir "/var/www/html/data""
-su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set trusted_domains 2 --value="$DOMAIN""
-echo "Nextcloud is installed"
-fi
-
-# If Theme Variable is set, use the Theme
-if [ -v THEME ]; then
-su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --value="$THEME""
-echo "Theme $THEME is Activated"
-fi
-
-# Enable Encryption
-if [ "$ENCRYPTION" = true ]; then
-	su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --on"
-    	su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
-    	su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
-    	su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --off"
-    	echo "Encryption Enabled"
-fi
-
-# If SINGLE_USER variable is set, setup user and quota
-if [ "$SINGLE_USER" = true ]; then
-    	su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
-    	su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
-	echo "User $SINGLE_USER_NAME is activated with Quota of $SINGLE_USER_QUOTA"
-fi
 exec "$@"
