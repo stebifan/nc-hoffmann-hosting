@@ -77,25 +77,20 @@ if [ -v THEME ]; then
 su -m - www-data -s /bin/sh -c "php /var/www/html/occ config:system:set theme --value="$THEME""
 echo "Theme $THEME is Activated"
 fi
-#Enable Encryption
-#check_encryption_on=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: true")
-#check_encryption_off=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:status" | grep -q "enabled: false")
 
+# Enable Encryption
 if [ "$ENCRYPTION" = true ]; then
 	su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --on"
-    su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
-    su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
-    su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --off"
-    echo "Encryption Enabled"
+    	su -m - www-data -s /bin/sh -c "php /var/www/html/occ app:enable encryption"
+    	su -m - www-data -s /bin/sh -c "php /var/www/html/occ encryption:enable"
+    	su -m - www-data -s /bin/sh -c "php /var/www/html/occ maintenance:mode --off"
+    	echo "Encryption Enabled"
 fi
-# If SINGLE_USER variable is set, setup user and quota
 
+# If SINGLE_USER variable is set, setup user and quota
 if [ "$SINGLE_USER" = true ]; then
-    su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
-#    quota_is=$(su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota")
-#    if [ $quota_is != $SINGLE_USER_QUOTA ]; then
-        su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
-#    fi
-echo "User $SINGLE_USER_NAME is activated with Quota of $SINGLE_USER_QUOTA"
+    	su -m - www-data -s /bin/sh -c 'php /var/www/html/occ user:add --password-from-env --display-name="$SINGLE_USER_FULL_NAME" --group="users" '$SINGLE_USER_NAME''
+    	su -m - www-data -s /bin/sh -c "php /var/www/html/occ user:setting $SINGLE_USER_NAME files quota "$SINGLE_USER_QUOTA""
+	echo "User $SINGLE_USER_NAME is activated with Quota of $SINGLE_USER_QUOTA"
 fi
 exec "$@"
